@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import time
-import Image
+#import Image
 from hal.eth import UdpComm
 from hal.servo_sim import servo
 from hal.camera_sim import camera
@@ -10,6 +10,8 @@ s = servo(3)
 #s.set(0,45)
 time.sleep(1)
 s.set_by_name("Arm3",0)
+time.sleep(1)
+s.set_by_name("Arm3",45)
 #s.set(1,5)
 #s.set(2,6)
 
