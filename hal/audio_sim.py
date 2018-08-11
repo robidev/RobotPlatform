@@ -4,12 +4,14 @@ class audio():
     """
 class to send sound to speaker
     """
+    def eventReceiver(self, message):
+        print message
 
-    def __init__(self, IP="127.0.0.1"):
-        self.ADDR = IP
-        self.UDP = UdpComm("127.0.0.1",5000,5001)
+    def __init__(self, name, udp):
+        self.speaker_name = name
+        self.UDP = udp
 
-    def send_pic(self, sound):
-        msg = "snd:%s" % sound
-        self.UDP.send_udp(msg,self.ADDR)
+    def send_sound(self, sound):
+        msg = "%s.snd:%s" % (self.speaker_name, sound)
+        self.UDP.send_udp(msg)
 

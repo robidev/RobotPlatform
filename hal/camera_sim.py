@@ -20,19 +20,19 @@ class to receive images from a camera
         image_buffer, addr = self.ImageChannel.recv_udp(HEADER + RESOLUTION)
         return image_buffer
 
-    def start(self, camera):
+    def start(self):
         self.ImageChannel.bind()
-        msg = camera + ".getimage" # rec:0 means, keep sending until stopped        
+        msg = self.name + ".getimage" # rec:0 means, keep sending until stopped        
         self.UDP.send_udp(msg)
 
-    def stop(self,camera):
-        msg = camera + ".rec_stop" # rec:1 means, send one pic        
+    def stop(self):
+        msg = self.name + ".rec_stop" # rec:1 means, send one pic        
         self.UDP.send_udp(msg)
 
-    def snapshot(self, camera):
+    def snapshot(self):
         pic = ""
         self.ImageChannel.bind()
-        msg = camera + ".getimage" # rec:1 means, send one pic        
+        msg = self.name + ".getimage" # rec:1 means, send one pic        
         self.UDP.send_udp(msg)
         data, addr = self.ImageChannel.recv_udp(65536)
         if addr[0] == self.UDP.UDP_IP_s:#is the data coming from the intended source

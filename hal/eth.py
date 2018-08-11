@@ -10,15 +10,15 @@ def udpReceiver_thread( threadName, udp):
     start = time.time()
     while True:
         try:
-            resp, addr = udp.recv_udp(1024)
+            resp, addr = udp.recv_udp(1024,1)
             udp.udpreceiver.send(resp)
         except udp.TimeoutError:
-            print "timeout"        
+            print "socket timeout"        
 
         end = time.time()
         timeout = end - start
         if timeout > udp.TIMEOUT and udp.TIMEOUT != -1:
-            print "timed out"
+            print "UDP receiver thread timed out"
             break
 
 
@@ -37,7 +37,15 @@ A class to manage UDP connections
         self.sock_out = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
-    def bind(self,TIMEOUT = 10):
+    #the synchronous udp receiver)
+    def bind(self):
+        self.sock_in = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+        self.sock_in.bind((self.UDP_IP_r, self.UDP_PORT_r))
+
+
+    #the asynchronous udp receiver threat will run until 'TIMEOUT' (default is 10 seconds)
+    def bindAsync(self,TIMEOUT = 10):
         self.TIMEOUT = TIMEOUT
         self.udpreceiver = signal('udpPacket')
         self.udpreceiver.connect(udpParser)
@@ -53,8 +61,10 @@ A class to manage UDP connections
     def send_udp(self, MESSAGE):
         self.sock_out.sendto(MESSAGE, (self.UDP_IP_s, self.UDP_PORT_s))
 
-    def recv_udp(self, BUFFER=1024, TIMEOUT=2):
-        self.sock_in.settimeout(TIMEOUT)
+    #TIMEOUT_sock defines the time in seconds before the socket times out when no data is received
+    def recv_udp(self, BUFFER=1024, TIMEOUT_sock=-1):
+        if TIMEOUT_sock != -1:
+            self.sock_in.settimeout(TIMEOUT_sock)
 
         try:
             return self.sock_in.recvfrom(BUFFER) # buffer size is 1024 bytes
