@@ -85,7 +85,7 @@ time.sleep(1)
 devicelist = dict()
 UDP.send_udp(b"all.identify")
 
-
+picture = b''
 #set some values of the robot components
 time.sleep(1)
 for keys,values in devicelist.items():
@@ -105,8 +105,9 @@ for keys,values in devicelist.items():
             print(u"could not get snapshot")
 
     if values[0] == b'display':
-        img = Image.frombytes('RGBA',(10,1),b"testaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbba")
-        values[1].send_frame(img)
+        #img = Image.frombytes('RGBA',(10,1),b"testaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbba")
+        #values[1].send_frame(img.tobytes())
+        values[1].send_frame(picture[:8100])#8100 is .net maximum buffer size
 
     time.sleep(2)
 
