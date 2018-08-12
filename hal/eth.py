@@ -1,10 +1,12 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import socket
-import thread
+import threading
 import time
 from blinker import signal
 
 def udpParser(message):
-    pass#print "send:'%s'" % message
+    pass
 
 def udpReceiver_thread( threadName, udp):
     start = time.time()
@@ -13,12 +15,12 @@ def udpReceiver_thread( threadName, udp):
             resp, addr = udp.recv_udp(1024,1)
             udp.udpreceiver.send(resp)
         except udp.TimeoutError:
-            print "socket timeout"        
+            print(u"socket timeout")        
 
         end = time.time()
         timeout = end - start
         if timeout > udp.TIMEOUT and udp.TIMEOUT != -1:
-            print "UDP receiver thread timed out"
+            print(u"UDP receiver thread timed out")
             break
 
 
@@ -54,9 +56,9 @@ A class to manage UDP connections
                      socket.SOCK_DGRAM) # UDP
         self.sock_in.bind((self.UDP_IP_r, self.UDP_PORT_r))
         try:
-            thread.start_new_thread( udpReceiver_thread, ("udpReceiver_thread", self,) )
+            threading.Thread( target=udpReceiver_thread, args=("udpReceiver_thread", self,) ).start()
         except:
-            print "Error: unable to start thread"
+            print(u"Error: unable to start thread")
 
     def send_udp(self, MESSAGE):
         self.sock_out.sendto(MESSAGE, (self.UDP_IP_s, self.UDP_PORT_s))
@@ -69,7 +71,7 @@ A class to manage UDP connections
         try:
             return self.sock_in.recvfrom(BUFFER) # buffer size is 1024 bytes
         except socket.timeout:
-            raise self.TimeoutError("UDP receiver timed out") 
+            raise self.TimeoutError(u"UDP receiver timed out") 
 
 class TcpCommServer():
     """

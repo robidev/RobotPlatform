@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from hal.eth import UdpComm
 import threading
 
@@ -6,7 +8,7 @@ class servo():
 class to control servo's
     """
     def eventReceiver(self, message):
-        if message == self.servo_name + ":OK":
+        if message == self.servo_name + b":OK":
             self.Ackevent.set()
             
 
@@ -18,15 +20,15 @@ class to control servo's
 
     def set(self, position):
         self.Ackevent.clear()
-        msg = "%s.servo:%i" % (self.servo_name, position)
+        msg = b"%s.servo:%i" % (self.servo_name, position)
         self.UDP.send_udp(msg)
         self.servo_pos = position
 
         #synchronous wait to async response
         if self.Ackevent.wait(10) != True:
-            print "error: did not receive OK within 10 seconds"
+            print(u"error: did not receive OK within 10 seconds")
         else:
-            print "OK received"
+            print(u"OK received")
 
     def get(self):
         return self.servo_pos
