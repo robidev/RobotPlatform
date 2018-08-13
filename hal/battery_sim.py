@@ -2,15 +2,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from hal.eth import UdpComm
 import threading
-import time
+import datetime
 
 class battery():
     """
 class to retrieve battery state
     """
     def eventReceiver(self, message):
-        if message.startswith(self.battery_name + ":"):
-            self.status = message + " - " + time.time()
+        if message.startswith(self.battery_name + b":"):
+            self.status = message + b" - " + str.encode(str(datetime.datetime.now()))
             self.Statusevent.set()
 
     def __init__(self, name, udp):

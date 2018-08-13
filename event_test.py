@@ -2,16 +2,24 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 """
 TODO:
-make unity-sim for gpio and display
-make battery unity-sim
-make audio and mic unity-sim
-test and extend car unity-sim
 
-missing: uart, storage(internal) and timer(internal)
+
+make cozmo-model in unity
+
+program goals:
+  wake-up
+  track a ball
+  
+
 
 next: make interactive webpage for easy control/access and scripting of behavior
 use flask, (with websockets?)
 
+--future--
+make transmit queue for udp?
+make callbacks for all actions?(slow..)
+
+missing: uart, storage(internal) and timer(internal)
 """
 
 from blinker import signal
@@ -61,6 +69,7 @@ def udpParser(message):
         if message.startswith(b"battery:"):
             resp = message[8:]
             devicelist[resp] = [message[:7], battery(resp,UDP)]
+
     elif message == b'identify:done':#we are done with the identify request
         for key,value in devicelist.items():
             print(u"%s = %s" % (key, value[0]))#print all the found devices
@@ -89,6 +98,7 @@ picture = b''
 #set some values of the robot components
 time.sleep(1)
 for keys,values in devicelist.items():
+    """
     if values[0] == b'servo':
         values[1].set(45)
         print("%s set to 45" % keys)
@@ -105,14 +115,30 @@ for keys,values in devicelist.items():
             print(u"could not get snapshot")
 
     if values[0] == b'display':
-        #img = Image.frombytes('RGBA',(10,1),b"testaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbba")
-        #values[1].send_frame(img.tobytes())
         values[1].send_frame(picture[:8100])#8100 is .net maximum buffer size
 
-    time.sleep(2)
+    if values[0] == b'car':
+        values[1].steerangle(10)
+        time.sleep(2)
+        values[1].forward()
+        time.sleep(2)
 
+    if values[0] == b'gpio':
+        values[1].set(b'1',b'1')
+        values[1].set(b'3',b'1')
+        print(values[1].get(b'0'))
+        print(values[1].get(b'1'))
+        print(values[1].get(b'2'))
+        print(values[1].get(b'3'))
 
+    if values[0] == b'speaker':
+        values[1].send_sound(b"test.wav")
+        time.sleep(2)
 
+    if values[0] == b'battery':
+        print(values[1].charge())
+        time.sleep(2)
+    """
 
 time.sleep(4)
 print(u"done!")

@@ -9,8 +9,7 @@ class car():
 class to control the car
     """
     def eventReceiver(self, message):
-        if message.startswith(self.car_name + ":"):
-            print(message)
+        print(message)
 
     def __init__(self, name, udp):
         self.car_name = name
@@ -28,4 +27,7 @@ class to control the car
         msg = b"%s.stop" % self.car_name
         self.UDP.send_udp(msg)
 
+    def steerangle(self, angle):
+        msg = b"%s.steerangle:%i" % (self.car_name, angle)
+        self.UDP.send_udp(msg)
 
