@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, division, print_function, unicode_literals
+import asyncore
 """
 TODO:
 
-
+convert udp into tcp
+create gpio-events in unity-sim
+collision-detection sensors in unity-sim with gpio
 make cozmo-model in unity
+
 
 program goals:
   wake-up
@@ -18,6 +22,8 @@ use flask, (with websockets?)
 --future--
 make transmit queue for udp?
 make callbacks for all actions?(slow..)
+
+make actual raspberry-pi library for gpio, speaker, camera, servo, stepper, video? mic? battery? car?
 
 missing: uart, storage(internal) and timer(internal)
 """
@@ -79,14 +85,13 @@ def udpParser(message):
             if message.startswith(key + b':'):
                 value[1].eventReceiver(message)
 
-
-
 #set up a UDP connection to our robot
 UDP = UdpComm("127.0.0.1",5001,"127.0.0.1",5000)
 
 UDP.bindAsync(-1) #listen asynchronous with no timeout
 udpreceiver = signal('udpPacket') # register to the signals coming from the udp listener
 udpreceiver.connect(udpParser) #connect the parser as a callback
+
 
 time.sleep(1)
 
@@ -116,7 +121,7 @@ for keys,values in devicelist.items():
 
     if values[0] == b'display':
         values[1].send_frame(picture[:8100])#8100 is .net maximum buffer size
-
+    """
     if values[0] == b'car':
         values[1].steerangle(10)
         time.sleep(2)
@@ -138,8 +143,8 @@ for keys,values in devicelist.items():
     if values[0] == b'battery':
         print(values[1].charge())
         time.sleep(2)
-    """
 
-time.sleep(4)
-print(u"done!")
+time.sleep(1)
 UDP.TIMEOUT = 0 #kill all threads
+print(u"done!")
+

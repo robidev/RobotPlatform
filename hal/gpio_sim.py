@@ -37,6 +37,6 @@ class to get/set gpio states
         msg = b"%s.set:%s=%s" % (self.gpio_name, GPIO_port, state)
         self.UDP.send_udp(msg)
         #wait for async callback with data
-        if self.Setevent.wait(10) != True:
-            print(u"error: did not receive OK within 10 seconds")
+        #if self.Setevent.wait(10) != True:
+        #    print(u"error: did not receive OK within 10 seconds")
 
