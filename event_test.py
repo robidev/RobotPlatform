@@ -3,25 +3,23 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import asyncore
 """
 TODO:
+gps: nmea string?
+imu-9axis: rotation-xyz,accel-xyz,compas-xyz
+lidar: degree-distance
 
-convert udp into tcp
-create gpio-events in unity-sim
-collision-detection sensors in unity-sim with gpio
 make cozmo-model in unity
-
 
 program goals:
   wake-up
   track a ball
   
-
-
 next: make interactive webpage for easy control/access and scripting of behavior
 use flask, (with websockets?)
 
 --future--
 make transmit queue for udp?
-make callbacks for all actions?(slow..)
+convert udp into tcp
+
 
 make actual raspberry-pi library for gpio, speaker, camera, servo, stepper, video? mic? battery? car?
 
@@ -103,11 +101,11 @@ picture = b''
 #set some values of the robot components
 time.sleep(1)
 for keys,values in devicelist.items():
-    """
+
     if values[0] == b'servo':
         values[1].set(45)
         print("%s set to 45" % keys)
-        
+    """        
     if values[0] == b'stepper':
         values[1].set(25,-1,10)
         print("%s set to 25" % keys)
@@ -121,7 +119,7 @@ for keys,values in devicelist.items():
 
     if values[0] == b'display':
         values[1].send_frame(picture[:8100])#8100 is .net maximum buffer size
-    """
+
     if values[0] == b'car':
         values[1].steerangle(10)
         time.sleep(2)
@@ -143,7 +141,7 @@ for keys,values in devicelist.items():
     if values[0] == b'battery':
         print(values[1].charge())
         time.sleep(2)
-
+    """
 time.sleep(1)
 UDP.TIMEOUT = 0 #kill all threads
 print(u"done!")

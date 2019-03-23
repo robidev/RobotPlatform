@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-layoutit.com for layout-wise controls
+#layoutit.com for layout-wise controls
 
 from threading import Lock
 from flask import Flask, render_template, session, request
@@ -17,6 +17,9 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 
+led1 = 0
+led2 = 0
+connected = 0
 
 def background_thread():
     """Example of how to send server generated events to clients."""
@@ -24,14 +27,54 @@ def background_thread():
     while True:
         socketio.sleep(10)
         count += 1
-        socketio.emit('my_response',
-                      {'data': 'Server generated event', 'count': count},
-                      namespace='/test')
+        #socketio.emit('my_response',
+        #              {'data': 'Server generated event', 'count': count},
+        #              namespace='/test')
 
+        #time.sleep(.7)
+        response = genericresponse()		
+        socketio.emit('serverUpdate', response, namespace='/test')
+		
+def genericresponse():
+    dateStr = "31/01/18"
+    timeStr = "13:33:40"
+
+    resp = {}
+    resp['date'] = dateStr
+    resp['time'] = timeStr
+    resp['spinnerStarted'] = connected
+    resp['sessionID'] = 42
+
+    resp['send'] = 2
+    resp['received'] = 0
+
+    resp['led1On'] = led1
+    resp['led2On'] = led2
+
+    print('led1=%i',led1)
+    print('led2=%i',led2)
+
+    return resp
 
 @app.route('/')
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@socketio.on('ledButtonID', namespace='/test') #namespace=namespace)
+def ledButton(msg):
+    global led1
+    global led2
+    led = msg['led']
+    on = msg['on']
+    #print 'ledButton()', led, on
+    if led == 1:
+        led1 = on
+        print('led1=%i',led1)
+    elif led == 2:
+        led2 = on
+        print('led2=%i',led2)
+    response = genericresponse()		
+    emit('serverUpdate', response, namespace='/test')
 
 
 @socketio.on('my_event', namespace='/test')
@@ -40,74 +83,21 @@ def test_message(message):
     emit('my_response',
          {'data': message['data'], 'count': session['receive_count']})
 
-
-@socketio.on('my_broadcast_event', namespace='/test')
-def test_broadcast_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
-@socketio.on('join', namespace='/test')
-def join(message):
-    join_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('leave', namespace='/test')
-def leave(message):
-    leave_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('close_room', namespace='/test')
-def close(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         'count': session['receive_count']},
-         room=message['room'])
-    close_room(message['room'])
-
-
-@socketio.on('my_room_event', namespace='/test')
-def send_room_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         room=message['room'])
-
-
-@socketio.on('disconnect_request', namespace='/test')
-def disconnect_request():
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'Disconnected!', 'count': session['receive_count']})
-    disconnect()
-
-
-@socketio.on('my_ping', namespace='/test')
-def ping_pong():
-    emit('my_pong')
-
-
 @socketio.on('connect', namespace='/test')
 def test_connect():
+    global connected
     global thread
     with thread_lock:
         if thread is None:
             thread = socketio.start_background_task(target=background_thread)
+    connected = 1;
     emit('my_response', {'data': 'Connected', 'count': 0})
 
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
+    global connected
+    connected = 0;
     print('Client disconnected', request.sid)
 
 
